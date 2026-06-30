@@ -1,15 +1,48 @@
 classDiagram
-    %% Replace the placeholders below with your actual classes, attributes, methods, and relationships.
-    %% Keep this file updated so it matches your final implementation.
-
-    class ClassName {
-        +type attribute
-        +method() returnType
+    class Owner {
+        -pets: Pet[]
+        -username: string
+        +getPets(): Pet[]
+        +addPet(pet: Pet): void        
+        +removePet(pet: Pet): void
     }
 
-    class AnotherClass {
-        +type attribute
-        +method() returnType
+    class Pet {
+        -owner: Owner
+        -name: string
+        -tasks: Task[]
+        +getTasks(): Task[]
     }
 
-    ClassName --> AnotherClass : relationship
+    class Scheduler {
+        -tasks: Task[]
+        +addTask(task: Task): void
+        +removeTask(task: Task): void
+        +getTasksByPet(pet: Pet): Task[]
+        +getAllTasks(): Task[]
+        +getTasksByPriority(priority: Priority): Task[]
+        +getTasksByStatus(isComplete: boolean): Task[]
+    }
+
+    class Task {
+        -dueDate: Date
+        -title: string
+        -description: string
+        -priority: Priority
+        -pet: Pet
+        -isComplete: boolean
+        +getDetails(): string
+        +markComplete(): void
+    }
+
+    class Priority {
+        <<enumeration>>
+        HIGH
+        MEDIUM
+        LOW
+    }
+
+    Owner "1" --> "many" Pet : owns
+    Pet "1" --> "many" Task: has
+    Scheduler "1" --> "many" Task : manages
+    Task "1" --> "uses" Priority: has
