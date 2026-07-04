@@ -1,16 +1,25 @@
 # PawPal+ Project Reflection
 
 ## 1. System Design
+** Actions
+- User can create a task for a pet.
+- User can create a daily plan that consists of multiple tasks with a deadline and priority.
+- User can see today's task and other tasks due in other dates.
 
 **a. Initial design**
 
 - Briefly describe your initial UML design.
+UML design will keep track of the pets the user have and tasks they have for each pet.
 - What classes did you include, and what responsibilities did you assign to each?
+The UML design will have an Owner class that has 1 or multiple pets, a Task class to store task details, Pet class to store pet information, and a scheduler class to perform other operations on task.
+
 
 **b. Design changes**
 
 - Did your design change during implementation?
+Yes.
 - If yes, describe at least one change and why you made it.
+Claude recommended changes in pawpal_system.py to make Task.pet assigment required and not optional.
 
 ---
 
