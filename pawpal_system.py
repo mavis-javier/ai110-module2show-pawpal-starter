@@ -73,6 +73,9 @@ class Task:
         due_date advanced by the interval — and add it to the pet's scheduler.
         Returns the new Task, or None if the task is not recurring.
         """
+        # address edge case if button is clicked twice to mark task complete and the same completed task is appended
+        if self.is_complete:    # already done - do nothing
+            return None
         self.is_complete = True
 
         next_date = self.next_due_date()

@@ -70,17 +70,56 @@ Paste a sample of your app's CLI or Streamlit output here so a reader can see wh
 
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest
 
-# Run with coverage:
-pytest --cov
+# Verbose, one line per test:
+python -m pytest -v
 ```
+
+The suite lives in `tests/test_pawpal.py` and covers the smarter-scheduling
+behaviors plus their edge cases:
+
+| Area | What's covered |
+|------|----------------|
+| **Sorting** (`sort_by_time`) | Empty scheduler, earliest-first order, `reverse=True`, tie stability (same-day tasks keep insertion order), and that the source list is not mutated. |
+| **Conflict detection** (`detect_conflicts` / `check_conflicts`) | No conflict when dates are distinct, flagging a shared date, 3+ tasks on one date, ascending date order of results, `same_pet_only` ignoring cross-pet collisions but flagging one pet with 2+ tasks, and `check_conflicts` returning `[]` when clean. |
+| **Recurring tasks** (`next_due_date` / `mark_complete`) | `NONE` → `None`, daily/weekly advance, monthly day-clamp (Jan 31 → Feb 28 non-leap, Feb 29 leap), Dec → Jan year rollover, non-recurring completion returns `None`, recurring completion spawns the next occurrence into the scheduler, the no-scheduler branch (task returned but not added), and **idempotent re-complete** (a second `mark_complete()` is a no-op — no duplicate occurrence). |
 
 Sample test output:
 
 ```
-# Paste your pytest output here
+============================= test session starts =============================
+collected 24 items
+
+tests/test_pawpal.py::test_mark_complete_changes_task_status PASSED      [  4%]
+tests/test_pawpal.py::test_adding_task_increases_pet_task_count PASSED   [  8%]
+tests/test_pawpal.py::test_sort_by_time_empty PASSED                     [ 12%]
+tests/test_pawpal.py::test_sort_by_time_orders_earliest_first PASSED     [ 16%]
+tests/test_pawpal.py::test_sort_by_time_reverse PASSED                   [ 20%]
+tests/test_pawpal.py::test_sort_by_time_is_stable_on_ties PASSED         [ 25%]
+tests/test_pawpal.py::test_sort_by_time_does_not_mutate_source PASSED    [ 29%]
+tests/test_pawpal.py::test_detect_conflicts_none_when_all_distinct_dates PASSED [ 33%]
+tests/test_pawpal.py::test_detect_conflicts_flags_shared_date PASSED     [ 37%]
+tests/test_pawpal.py::test_detect_conflicts_three_tasks_same_date PASSED [ 41%]
+tests/test_pawpal.py::test_detect_conflicts_output_is_date_sorted PASSED [ 45%]
+tests/test_pawpal.py::test_detect_conflicts_same_pet_only_ignores_cross_pet PASSED [ 50%]
+tests/test_pawpal.py::test_detect_conflicts_same_pet_only_flags_single_pet PASSED [ 54%]
+tests/test_pawpal.py::test_check_conflicts_empty_when_no_conflicts PASSED [ 58%]
+tests/test_pawpal.py::test_next_due_date_none_when_not_recurring PASSED  [ 62%]
+tests/test_pawpal.py::test_next_due_date_daily PASSED                    [ 66%]
+tests/test_pawpal.py::test_next_due_date_weekly PASSED                   [ 70%]
+tests/test_pawpal.py::test_monthly_clamps_jan31_to_feb28_non_leap PASSED [ 75%]
+tests/test_pawpal.py::test_monthly_clamps_jan31_to_feb29_leap PASSED     [ 79%]
+tests/test_pawpal.py::test_monthly_rolls_over_year PASSED                [ 83%]
+tests/test_pawpal.py::test_mark_complete_non_recurring_returns_none PASSED [ 87%]
+tests/test_pawpal.py::test_mark_complete_recurring_spawns_next_in_scheduler PASSED [ 91%]
+tests/test_pawpal.py::test_mark_complete_recurring_without_scheduler_not_added PASSED [ 95%]
+tests/test_pawpal.py::test_mark_complete_is_idempotent PASSED            [100%]
+
+============================= 24 passed in 0.15s ==============================
 ```
+### Confidence Level
+5 stars for reliability
 
 ## 📐 Smarter Scheduling
 
