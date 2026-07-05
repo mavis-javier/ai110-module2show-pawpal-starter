@@ -1,4 +1,6 @@
 import streamlit as st
+from datetime import date
+from pawpal_system import Owner, Pet, Task, Scheduler, Priority
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
@@ -49,22 +51,53 @@ st.caption("Add a few tasks. In your final version, these should feed into your 
 if "tasks" not in st.session_state:
     st.session_state.tasks = []
 
+if "scheduler" not in st.session_state:
+    st.session_state.scheduler = Scheduler()
+
 col1, col2, col3 = st.columns(3)
 with col1:
     task_title = st.text_input("Task title", value="Morning walk")
 with col2:
-    duration = st.number_input("Duration (minutes)", min_value=1, max_value=240, value=20)
+    task_desc = st.text_input("Task description", value="Walk around the block")
 with col3:
     priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
 
+due_date = st.date_input("Due date", value=date.today())
+
 if st.button("Add task"):
-    st.session_state.tasks.append(
-        {"title": task_title, "duration_minutes": int(duration), "priority": priority}
+    # Create Owner + Pet from inputs (once), then add Task via scheduler
+    if "owner" not in st.session_state:
+        st.session_state.owner = Owner(username=owner_name, scheduler=st.session_state.scheduler)
+    if "pet" not in st.session_state:
+        pet = Pet(name=pet_name, owner=st.session_state.owner)
+        st.session_state.owner.add_pet(pet)
+        st.session_state.pet = pet
+
+    task = Task(
+        title=task_title,
+        description=task_desc,
+        priority=Priority[priority.upper()],
+        due_date=due_date,
+        pet=st.session_state.pet,
     )
+    st.session_state.scheduler.add_task(st.session_state.pet, task)
+    st.session_state.tasks.append(task)
+    st.success(f"Added task '{task_title}' for {st.session_state.pet.name} ({species})")
 
 if st.session_state.tasks:
     st.write("Current tasks:")
-    st.table(st.session_state.tasks)
+    st.table(
+        [
+            {
+                "Title": t.title,
+                "Description": t.description,
+                "Priority": t.priority.value,
+                "Due Date": str(t.due_date),
+                "Complete": t.is_complete,
+            }
+            for t in st.session_state.tasks
+        ]
+    )
 else:
     st.info("No tasks yet. Add one above.")
 

@@ -18,12 +18,13 @@ luna_task_1 = Task("clean Luna's litter", "refill litter powder as well", Priori
 luna_task_2 = Task("buy cat food", "buy treats if available", Priority.MEDIUM, date(2026, 5, 30), luna)
 luna_task_3 = Task("brush Luna", "", Priority.MEDIUM, date(2026, 7, 5), luna)
 
-scheduler.add_task(chibi, chibi_task_1)
-scheduler.add_task(chibi, chibi_task_2)
-scheduler.add_task(chibi, chibi_task_3)
-scheduler.add_task(luna, luna_task_1)
-scheduler.add_task(luna, luna_task_2)
-scheduler.add_task(luna, luna_task_3)
+# Add tasks out of order (dates and pets interleaved) to prove sorting works.
+scheduler.add_task(luna, luna_task_1)   # 2026-08-09
+scheduler.add_task(chibi, chibi_task_3)  # today
+scheduler.add_task(luna, luna_task_3)   # 2026-07-05
+scheduler.add_task(chibi, chibi_task_1)  # today
+scheduler.add_task(luna, luna_task_2)   # 2026-05-30
+scheduler.add_task(chibi, chibi_task_2)  # 2026-07-04
 
 def format_schedule_by_pet(scheduler: Scheduler) -> str:
     output = []
@@ -49,4 +50,45 @@ def format_schedule_by_pet(scheduler: Scheduler) -> str:
 
     return "\n".join(output)
 
+def print_task_line(task: Task) -> None:
+    """Print one task as: status, priority, title, pet, due date."""
+    status = "X" if task.is_complete else " "
+    print(f"  [{status}] {task.priority.value:<6} {task.title:<22} "
+          f"{task.pet.name:<8} {task.due_date.strftime('%a, %b %d')}")
+
+
 print(format_schedule_by_pet(scheduler))
+
+# --- Sorted by time (added out of order above, printed earliest-first) ---
+print(f"\n{'='*50}")
+print("  ALL TASKS SORTED BY TIME")
+print(f"{'='*50}")
+for task in scheduler.sort_by_time():
+    print_task_line(task)
+
+# --- Filter by pet name ---
+print(f"\n{'='*50}")
+print("  FILTER: pet = chibi")
+print(f"{'='*50}")
+for task in scheduler.filter_tasks(pet_name="chibi"):
+    print_task_line(task)
+
+# --- Filter by status ---
+print(f"\n{'='*50}")
+print("  FILTER: incomplete tasks")
+print(f"{'='*50}")
+for task in scheduler.filter_tasks(is_complete=False):
+    print_task_line(task)
+
+# --- Combined filter: pet + status ---
+print(f"\n{'='*50}")
+print("  FILTER: chibi + incomplete")
+print(f"{'='*50}")
+for task in scheduler.filter_tasks(pet_name="chibi", is_complete=False):
+    print_task_line(task)
+
+# --- Conflict detection: warn on dates with 2+ tasks ---
+conflicts = scheduler.check_conflicts()
+if conflicts:
+    for msg in conflicts:
+        print(msg)

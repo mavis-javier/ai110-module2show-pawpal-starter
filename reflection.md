@@ -33,7 +33,9 @@ Claude recommended changes in pawpal_system.py to make Task.pet assigment requir
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+scheduler only stores due date and not time
 - Why is that tradeoff reasonable for this scenario?
+it keeps implementation more simple.
 
 ---
 

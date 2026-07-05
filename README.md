@@ -84,14 +84,30 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
+All scheduling logic lives in `pawpal_system.py`. Tasks are tracked by
+`due_date` (calendar day), so "time" throughout means the due date.
 
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| Task sorting | `Scheduler.sort_by_time(reverse=False)` | Returns a new list sorted by `due_date`, earliest first (`reverse=True` for latest first). Built-in Timsort, O(n log n), stable — same-day tasks keep insertion order. |
+| Filtering | `Scheduler.filter_tasks(pet_name=None, is_complete=None)` | Filter by pet name (case-insensitive), completion status, or both (AND). `None` means "any". Single linear scan, O(n). |
+| Conflict handling | `Scheduler.detect_conflicts(same_pet_only=False)` · `Scheduler.check_conflicts(...)` | Flags any date with 2+ tasks. `same_pet_only=True` flags only when one pet has 2+ on a day. `detect_conflicts` returns `{date: [tasks]}`; `check_conflicts` returns human-readable warning strings and never raises, so callers warn and keep running. Hash-bucket by date, O(n) — no pairwise comparison. |
+| Recurring tasks | `Recurrence` enum · `Task.next_due_date()` · `Task.mark_complete()` | Recurrence is one of `NONE`, `DAILY`, `WEEKLY`, `MONTHLY`. Completing a recurring task auto-creates the next occurrence (due date advanced by the interval) and adds it to the scheduler. Monthly advance clamps the day (Jan 31 → Feb 28). `mark_complete()` returns the new `Task`, or `None` if not recurring. |
+
+### Example
+
+```python
+scheduler.sort_by_time()                                   # all tasks, earliest due first
+scheduler.filter_tasks(pet_name="chibi", is_complete=False)  # chibi's incomplete tasks
+
+for msg in scheduler.check_conflicts():                    # warn on double-booked days
+    print(msg)
+# WARNING: 3 tasks scheduled on Sun, Jul 05 2026: trim nails (chibi), brush Luna (luna), walk chibi (chibi)
+
+daily = Task("walk", "", Priority.HIGH, date.today(), chibi, recurrence=Recurrence.DAILY)
+scheduler.add_task(chibi, daily)
+next_walk = daily.mark_complete()   # next_walk.due_date is tomorrow, already in the scheduler
+```
 
 ## 📸 Demo Walkthrough
 
