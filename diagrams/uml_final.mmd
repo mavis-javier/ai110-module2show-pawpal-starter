@@ -1,0 +1,72 @@
+classDiagram
+    direction LR
+
+    class Priority {
+        <<enumeration>>
+        HIGH
+        MEDIUM
+        LOW
+    }
+
+    class Recurrence {
+        <<enumeration>>
+        NONE
+        DAILY
+        WEEKLY
+        MONTHLY
+    }
+
+    class Task {
+        +str title
+        +str description
+        +Priority priority
+        +date due_date
+        +Pet pet
+        +bool is_complete
+        +Recurrence recurrence
+        +get_details() str
+        +next_due_date() Optional~date~
+        +mark_complete() Optional~Task~
+    }
+
+    class Pet {
+        +str name
+        +Owner owner
+        +Scheduler scheduler
+        +get_tasks() List~Task~
+    }
+
+    class Scheduler {
+        +List~Task~ tasks
+        +Dict~int, List~Task~~ pet_tasks
+        +add_task(pet, task) None
+        +remove_task(task) bool
+        +get_tasks_by_pet(pet) List~Task~
+        +get_all_tasks() List~Task~
+        +get_tasks_by_priority(priority) List~Task~
+        +get_tasks_by_status(is_complete) List~Task~
+        +sort_by_time(reverse) List~Task~
+        +filter_tasks(pet_name, is_complete) List~Task~
+        +detect_conflicts(same_pet_only) Dict~date, List~Task~~
+        +check_conflicts(same_pet_only) List~str~
+    }
+
+    class Owner {
+        +str username
+        +Scheduler scheduler
+        +List~Pet~ pets
+        +get_pets() List~Pet~
+        +add_pet(pet) None
+        +remove_pet(pet) bool
+    }
+
+    %% relationships
+    Owner "1" o-- "*" Pet : owns
+    Owner "1" --> "1" Scheduler : uses
+    Pet "1" --> "1" Scheduler : registered with
+    Pet "1" --> "1" Owner : owned by
+    Scheduler "1" o-- "*" Task : manages
+    Task "1" --> "1" Pet : assigned to
+    Task ..> Priority : uses
+    Task ..> Recurrence : uses
+    Task ..> Task : spawns next occurrence

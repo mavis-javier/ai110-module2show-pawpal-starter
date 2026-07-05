@@ -84,20 +84,28 @@ if st.button("Add task"):
     st.session_state.tasks.append(task)
     st.success(f"Added task '{task_title}' for {st.session_state.pet.name} ({species})")
 
+def _task_rows(tasks):
+    return [
+        {
+            "Title": t.title,
+            "Description": t.description,
+            "Priority": t.priority.value,
+            "Due Date": str(t.due_date),
+            "Complete": t.is_complete,
+        }
+        for t in tasks
+    ]
+
+
 if st.session_state.tasks:
-    st.write("Current tasks:")
-    st.table(
-        [
-            {
-                "Title": t.title,
-                "Description": t.description,
-                "Priority": t.priority.value,
-                "Due Date": str(t.due_date),
-                "Complete": t.is_complete,
-            }
-            for t in st.session_state.tasks
-        ]
+    order = st.radio(
+        "Sort by due date", ["Earliest first", "Latest first"], horizontal=True
     )
+    sorted_tasks = st.session_state.scheduler.sort_by_time(
+        reverse=(order == "Latest first")
+    )
+    st.write("Current tasks:")
+    st.table(_task_rows(sorted_tasks))
 else:
     st.info("No tasks yet. Add one above.")
 
@@ -106,16 +114,23 @@ st.divider()
 st.subheader("Build Schedule")
 st.caption("This button should call your scheduling logic once you implement it.")
 
+same_pet_only = st.checkbox(
+    "Only warn when one pet is double-booked", value=False
+)
+
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    sched = st.session_state.scheduler
+
+    warnings = sched.check_conflicts(same_pet_only=same_pet_only)
+    if warnings:
+        for msg in warnings:
+            st.warning(msg)
+    else:
+        st.info("No scheduling conflicts.")
+
+    plan = sched.sort_by_time()
+    if plan:
+        st.write("Planned tasks (earliest due first):")
+        st.table(_task_rows(plan))
+    else:
+        st.info("No tasks to schedule. Add one above.")

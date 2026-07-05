@@ -44,12 +44,16 @@ it keeps implementation more simple.
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+Design brainstorming, refactoring, generating new features, and understanding existing code.
 - What kinds of prompts or questions were most helpful?
+Prompts to generate code and explaining ideas.
 
 **b. Judgment and verification**
 
-- Describe one moment where you did not accept an AI suggestion as-is.
+- Describe one moment where you did not accept an AI suggestion as-is.\
+When it suggested to change the existing UI instead of integrating new bacnkend logic with current UI.
 - How did you evaluate or verify what the AI suggested?
+Code review.
 
 ---
 
@@ -58,12 +62,16 @@ it keeps implementation more simple.
 **a. What you tested**
 
 - What behaviors did you test?
+The features such as creating a task, sorting by date, detecting conflicts in tasks for a pet or owner that might have multiple pets with tasks conflicting.
 - Why were these tests important?
+To ensure app behaves or handles edge cases gracefully and for me to be mindful of potential outcomes that needs further consideration.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
+From 1 - 5, 5
 - What edge cases would you test next if you had more time?
+If I implemented the UI to complete tasks, test that as well.
 
 ---
 
@@ -72,11 +80,14 @@ it keeps implementation more simple.
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+Generating multiple lines of code and having each syntax being explained or are simply readable for me to understand what is going on in the app.
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+Definitely complete missing UI features such as marking a task complete and adding a timestamp instead of only a due date.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+Understand the code AI suggests to you and plan before prompting a change.

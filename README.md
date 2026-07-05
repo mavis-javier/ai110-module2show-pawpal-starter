@@ -150,12 +150,29 @@ next_walk = daily.mark_complete()   # next_walk.due_date is tomorrow, already in
 
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+Follow these steps to reproduce a full run of the app:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. **Launch the app.** From the project root, run `streamlit run app.py`. The
+   PawPal+ page opens with the scenario and "what to build" panels expanded.
+2. **Enter owner + pet info.** Under *Quick Demo Inputs*, set the owner name,
+   pet name, and species. The `Owner` and `Pet` are created once, on the first
+   task you add, and the pet is registered with the shared `Scheduler`.
+3. **Add tasks.** Fill in a task title, description, priority (low/medium/high),
+   and a due date, then click **Add task**. Each click builds a `Task` and calls
+   `scheduler.add_task(...)`. Repeat to add several tasks across different days.
+4. **Sort by due date.** Once tasks exist, use the *Sort by due date* radio to
+   toggle **Earliest first** / **Latest first**. This calls
+   `Scheduler.sort_by_time(reverse=...)` — a stable Timsort keyed on `due_date`,
+   so same-day tasks keep the order you entered them — and re-renders the table.
+5. **Check for conflicts.** Optionally tick *Only warn when one pet is
+   double-booked* (maps to `same_pet_only=True`), then click **Generate
+   schedule**. The app calls `check_conflicts(...)`, which buckets tasks by date
+   (hash-bucket, O(n)) and returns a warning line for every date holding 2+
+   tasks; if none collide it reports "No scheduling conflicts."
+6. **Review the plan.** Below the warnings, *Generate schedule* prints the full
+   task list ordered earliest-due-first via `sort_by_time()`.
 
-**Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->
+> **Recurring tasks** (`Recurrence`, `Task.next_due_date()`,
+> `Task.mark_complete()`) are implemented and tested in `pawpal_system.py` but
+> are not yet surfaced in the Streamlit UI — exercise them via the test suite or
+> the Python example above.
